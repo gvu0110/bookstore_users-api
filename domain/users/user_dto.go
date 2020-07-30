@@ -1,0 +1,30 @@
+package users
+
+import (
+	"regexp"
+	"strings"
+
+	"github.com/gvu0110/bookstore_users-api/utils/errors"
+)
+
+// Data Transfer Object: object transferred between the database and the application.
+// Core domain microservice API
+
+// User struct provides and exposes user entity
+type User struct {
+	ID         int64  `json:"id"`
+	FirstName  string `json:"first_name"`
+	LastName   string `json:"last_name"`
+	Email      string `json:"email"`
+	DateCreate string `json:"date_create"`
+}
+
+// Validate function validates a User struct
+func (user *User) Validate() *errors.RESTError {
+	user.Email = strings.TrimSpace(strings.ToLower(user.Email))
+	var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	if (len(user.Email) < 3 && len(user.Email) > 254) || !emailRegex.MatchString(user.Email) {
+		return errors.NewBadRequestRESTError("Invalid Email Address")
+	}
+	return nil
+}
