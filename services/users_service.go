@@ -2,7 +2,6 @@ package services
 
 import (
 	"github.com/gvu0110/bookstore_users-api/domain/users"
-	"github.com/gvu0110/bookstore_users-api/utils/date"
 	"github.com/gvu0110/bookstore_users-api/utils/errors"
 )
 
@@ -17,17 +16,14 @@ func CreateUser(user users.User) (*users.User, *errors.RESTError) {
 	if err := user.Save(); err != nil {
 		return nil, err
 	}
-
-	user.DateCreate = date.GetNowString()
-
 	return &user, nil
 }
 
 // GetUser function gets user's information
 func GetUser(userID int64) (*users.User, *errors.RESTError) {
-	result := users.User{ID: userID}
+	result := &users.User{ID: userID}
 	if err := result.Get(); err != nil {
 		return nil, err
 	}
-	return &result, nil
+	return result, nil
 }

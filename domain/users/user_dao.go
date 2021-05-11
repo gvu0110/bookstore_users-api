@@ -3,38 +3,54 @@ package users
 import (
 	"fmt"
 
+	"github.com/gvu0110/bookstore_users-api/datasources/mysql/user_db"
+	"github.com/gvu0110/bookstore_users-api/utils/date"
 	"github.com/gvu0110/bookstore_users-api/utils/errors"
 )
 
 // Data Access Object: the logic to access to database.
 // Only entry point from the application to interact with the database
 
-var (
-	usersDB = make(map[int64]*User)
+const (
+	queryInsertUser = "INSERT INTO users (first_name, last_name, email, date_created) VALUES (?, ?, ?, ?);"
+	queryGetUser    = "SELECT id, first_name, last_name, email, date_created FROM users WHERE id=?;"
 )
 
 // Get function gets user from database
 func (user *User) Get() *errors.RESTError {
-	result := usersDB[user.ID]
-	if result == nil {
-		return errors.NewNotFoundRESTError(fmt.Sprintf("User ID %d not found", user.ID))
+	stmt, err := user_db.Client.Prepare(queryInsertUser)
+	if err != nil {
+		return errors.NewBadRequestRESTError(err.Error())
 	}
+	defer stmt.Close()
 
-	user.ID = result.ID
-	user.FirstName = result.FirstName
-	user.LastName = result.LastName
-	user.Email = result.Email
-	user.DateCreate = result.DateCreate
+	result := stmt.QueryRow(user.ID)
+	if err := result.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.DateCreate); err != nil {
+		return errors.NewInternalServerError(fmt.Sprintf("Error when trying to get userID %d: %s", user.ID, err.Error()))
+	}
 	return nil
 }
 
 // Save function saves user to database
 func (user *User) Save() *errors.RESTError {
-	current := usersDB[user.ID]
-	if current != nil {
-		return errors.NewBadRequestRESTError(fmt.Sprintf("User ID %d already exists", user.ID))
+	stmt, err := user_db.Client.Prepare(queryInsertUser)
+	if err != nil {
+		return errors.NewBadRequestRESTError(err.Error())
+	}
+	defer stmt.Close()
+
+	user.DateCreate = date.GetNowString()
+
+	insertResult, err := stmt.Exec(user.FirstName, user.LastName, user.Email, user.DateCreate)
+	if err != nil {
+		return errors.NewInternalServerError(fmt.Sprintf("Error when trying to save user: %s", err.Error()))
 	}
 
-	usersDB[user.ID] = user
+	userID, err := insertResult.LastInsertId()
+	if err != nil {
+		return errors.NewInternalServerError(fmt.Sprintf("Error when trying to save user: %s", err.Error()))
+	}
+
+	user.ID = userID
 	return nil
 }
