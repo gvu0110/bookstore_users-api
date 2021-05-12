@@ -27,3 +27,18 @@ func GetUser(userID int64) (*users.User, *errors.RESTError) {
 	}
 	return result, nil
 }
+
+func UpdateUser(user users.User) (*users.User, *errors.RESTError) {
+	current, err := GetUser(user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	current.FirstName = user.FirstName
+	current.LastName = user.LastName
+	current.Email = user.Email
+	if err := current.Update(); err != nil {
+		return nil, err
+	}
+	return current, nil
+}
