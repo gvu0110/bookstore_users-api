@@ -42,3 +42,11 @@ func UpdateUser(user users.User) (*users.User, *errors.RESTError) {
 	}
 	return current, nil
 }
+
+func DeleteUser(userID int64) *errors.RESTError {
+	result := &users.User{ID: userID}
+	if err := result.Delete(); err != nil {
+		return err
+	}
+	return nil
+}
