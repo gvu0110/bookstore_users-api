@@ -9,8 +9,22 @@ import (
 
 // Core entire business logic, shouldn't be changed
 
+var (
+	UsersService usersServiceInterface = &usersService{}
+)
+
+type usersService struct{}
+
+type usersServiceInterface interface {
+	CreateUser(users.User) (*users.User, *errors.RESTError)
+	GetUser(int64) (*users.User, *errors.RESTError)
+	UpdateUser(users.User) (*users.User, *errors.RESTError)
+	DeleteUser(int64) *errors.RESTError
+	FindUsersByStatus(string) (users.Users, *errors.RESTError)
+}
+
 // CreateUser function creates a new user
-func CreateUser(user users.User) (*users.User, *errors.RESTError) {
+func (s *usersService) CreateUser(user users.User) (*users.User, *errors.RESTError) {
 	if err := user.Validate(); err != nil {
 		return nil, err
 	}
@@ -25,7 +39,7 @@ func CreateUser(user users.User) (*users.User, *errors.RESTError) {
 }
 
 // GetUser function gets user's information
-func GetUser(userID int64) (*users.User, *errors.RESTError) {
+func (s *usersService) GetUser(userID int64) (*users.User, *errors.RESTError) {
 	result := &users.User{ID: userID}
 	if err := result.Get(); err != nil {
 		return nil, err
@@ -33,8 +47,8 @@ func GetUser(userID int64) (*users.User, *errors.RESTError) {
 	return result, nil
 }
 
-func UpdateUser(user users.User) (*users.User, *errors.RESTError) {
-	current, err := GetUser(user.ID)
+func (s *usersService) UpdateUser(user users.User) (*users.User, *errors.RESTError) {
+	current, err := UsersService.GetUser(user.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +63,7 @@ func UpdateUser(user users.User) (*users.User, *errors.RESTError) {
 	return current, nil
 }
 
-func DeleteUser(userID int64) *errors.RESTError {
+func (s *usersService) DeleteUser(userID int64) *errors.RESTError {
 	result := &users.User{ID: userID}
 	if err := result.Delete(); err != nil {
 		return err
@@ -57,7 +71,7 @@ func DeleteUser(userID int64) *errors.RESTError {
 	return nil
 }
 
-func FindUsersByStatus(status string) (users.Users, *errors.RESTError) {
+func (s *usersService) FindUsersByStatus(status string) (users.Users, *errors.RESTError) {
 	dao := &users.User{}
 	return dao.FindByStatus(status)
 }
