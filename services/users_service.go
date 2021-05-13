@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/gvu0110/bookstore_users-api/domain/users"
 	"github.com/gvu0110/bookstore_users-api/utils/date"
+	"github.com/gvu0110/bookstore_users-api/utils/encryption"
 	"github.com/gvu0110/bookstore_users-api/utils/errors"
 )
 
@@ -16,6 +17,7 @@ func CreateUser(user users.User) (*users.User, *errors.RESTError) {
 
 	user.Status = users.StatusActive
 	user.DateCreated = date.GetNowDBFormat()
+	user.Password = encryption.GetMD5(user.Password)
 	if err := user.Save(); err != nil {
 		return nil, err
 	}
@@ -55,7 +57,7 @@ func DeleteUser(userID int64) *errors.RESTError {
 	return nil
 }
 
-func FindUsersByStatus(status string) ([]users.User, *errors.RESTError) {
+func FindUsersByStatus(status string) (users.Users, *errors.RESTError) {
 	dao := &users.User{}
 	return dao.FindByStatus(status)
 }

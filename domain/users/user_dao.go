@@ -12,10 +12,10 @@ import (
 
 const (
 	queryInsertUser        = "INSERT INTO users (first_name, last_name, email, date_created, status, password) VALUES (?, ?, ?, ?, ?, ?);"
-	queryGetUser           = "SELECT id, first_name, last_name, email, date_created, status, password FROM users WHERE id=?;"
+	queryGetUser           = "SELECT id, first_name, last_name, email, date_created, status FROM users WHERE id=?;"
 	queryUpdateUser        = "UPDATE users SET first_name=?, last_name=?, email=?, password=? WHERE id=?;"
 	queryDeleteUser        = "DELETE FROM users WHERE id=?;"
-	queryFindUsersByStatus = "SELECT id, first_name, last_name, email, date_created, status, password FROM users WHERE status=?;"
+	queryFindUsersByStatus = "SELECT id, first_name, last_name, email, date_created, status FROM users WHERE status=?;"
 )
 
 // Get function gets user from database
@@ -27,7 +27,7 @@ func (user *User) Get() *errors.RESTError {
 	defer stmt.Close()
 
 	result := stmt.QueryRow(user.ID)
-	if err := result.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.DateCreated, &user.Status, &user.Password); err != nil {
+	if err := result.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.DateCreated, &user.Status); err != nil {
 		return errors.NewInternalServerError(fmt.Sprintf("Error when trying to get userID %d: %s", user.ID, err.Error()))
 	}
 	return nil
@@ -98,7 +98,7 @@ func (user *User) FindByStatus(status string) ([]User, *errors.RESTError) {
 	result := make([]User, 0)
 	for rows.Next() {
 		var user User
-		if err := rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.DateCreated, &user.Status, &user.Password); err != nil {
+		if err := rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.DateCreated, &user.Status); err != nil {
 			return nil, errors.NewInternalServerError(err.Error())
 		}
 		result = append(result, user)
