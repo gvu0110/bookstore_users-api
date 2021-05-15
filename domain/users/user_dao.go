@@ -12,11 +12,12 @@ import (
 // Only entry point from the application to interact with the database
 
 const (
-	queryInsertUser        = "INSERT INTO users (first_name, last_name, email, date_created, status, password) VALUES (?, ?, ?, ?, ?, ?);"
-	queryGetUser           = "SELECT id, first_name, last_name, email, date_created, status FROM users WHERE id=?;"
-	queryUpdateUser        = "UPDATE users SET first_name=?, last_name=?, email=?, password=? WHERE id=?;"
-	queryDeleteUser        = "DELETE FROM users WHERE id=?;"
-	queryFindUsersByStatus = "SELECT id, first_name, last_name, email, date_created, status FROM users WHERE status=?;"
+	queryInsertUser                = "INSERT INTO users (first_name, last_name, email, date_created, status, password) VALUES (?, ?, ?, ?, ?, ?);"
+	queryGetUser                   = "SELECT id, first_name, last_name, email, date_created, status FROM users WHERE id=?;"
+	queryUpdateUser                = "UPDATE users SET first_name=?, last_name=?, email=?, password=? WHERE id=?;"
+	queryDeleteUser                = "DELETE FROM users WHERE id=?;"
+	queryFindUsersByStatus         = "SELECT id, first_name, last_name, email, date_created, status FROM users WHERE status=?;"
+	queryGetUserByEmailAndPassword = "SELECT id, first_name, last_name, email, date_created, status FROM users WHERE email=? AND password=?"
 )
 
 // Get function gets user from database
@@ -95,14 +96,14 @@ func (user *User) Delete() *errors.RESTError {
 func (user *User) FindByStatus(status string) ([]User, *errors.RESTError) {
 	stmt, err := user_db.Client.Prepare(queryFindUsersByStatus)
 	if err != nil {
-		logger.Error("Error when trying to prepare find user statement", err)
+		logger.Error("Error when trying to prepare find users by status statement", err)
 		return nil, errors.NewInternalServerError("Database error")
 	}
 	defer stmt.Close()
 
 	rows, err := stmt.Query(status)
 	if err != nil {
-		logger.Error(fmt.Sprintf("Error when trying to find user by status: %s", err.Error()), err)
+		logger.Error(fmt.Sprintf("Error when trying to find users by status: %s", err.Error()), err)
 		return nil, errors.NewInternalServerError("Database error")
 	}
 	defer rows.Close()
@@ -121,4 +122,20 @@ func (user *User) FindByStatus(status string) ([]User, *errors.RESTError) {
 		return nil, errors.NewNotFoundRESTError(fmt.Sprintf("No user matching status %s", status))
 	}
 	return result, nil
+}
+
+func (user *User) GetByEmailAndPassword() *errors.RESTError {
+	stmt, err := user_db.Client.Prepare(queryGetUserByEmailAndPassword)
+	if err != nil {
+		logger.Error("Error when trying to prepare get user by email and password statement", err)
+		return errors.NewInternalServerError("Database error")
+	}
+	defer stmt.Close()
+
+	result := stmt.QueryRow(user.Email, user.Password)
+	if err := result.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.DateCreated, &user.Status); err != nil {
+		logger.Error(fmt.Sprintf("Error when trying to get user by email and password: %s", err.Error()), err)
+		return errors.NewInternalServerError("Database error")
+	}
+	return nil
 }

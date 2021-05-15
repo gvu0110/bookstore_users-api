@@ -21,6 +21,7 @@ type usersServiceInterface interface {
 	UpdateUser(users.User) (*users.User, *errors.RESTError)
 	DeleteUser(int64) *errors.RESTError
 	FindUsersByStatus(string) (users.Users, *errors.RESTError)
+	LoginRequest(users.LoginRequest) (*users.User, *errors.RESTError)
 }
 
 // CreateUser function creates a new user
@@ -40,38 +41,53 @@ func (s *usersService) CreateUser(user users.User) (*users.User, *errors.RESTErr
 
 // GetUser function gets user's information
 func (s *usersService) GetUser(userID int64) (*users.User, *errors.RESTError) {
-	result := &users.User{ID: userID}
-	if err := result.Get(); err != nil {
+	user := &users.User{ID: userID}
+	if err := user.Get(); err != nil {
 		return nil, err
 	}
-	return result, nil
+	return user, nil
 }
 
 func (s *usersService) UpdateUser(user users.User) (*users.User, *errors.RESTError) {
-	current, err := UsersService.GetUser(user.ID)
+	if err := user.Validate(); err != nil {
+		return nil, err
+	}
+
+	currentUser, err := UsersService.GetUser(user.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	current.FirstName = user.FirstName
-	current.LastName = user.LastName
-	current.Email = user.Email
-	current.Password = user.Password
-	if err := current.Update(); err != nil {
+	currentUser.FirstName = user.FirstName
+	currentUser.LastName = user.LastName
+	currentUser.Email = user.Email
+	currentUser.Password = user.Password
+	if err := currentUser.Update(); err != nil {
 		return nil, err
 	}
-	return current, nil
+	return currentUser, nil
 }
 
 func (s *usersService) DeleteUser(userID int64) *errors.RESTError {
-	result := &users.User{ID: userID}
-	if err := result.Delete(); err != nil {
+	user := &users.User{ID: userID}
+	if err := user.Delete(); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (s *usersService) FindUsersByStatus(status string) (users.Users, *errors.RESTError) {
-	dao := &users.User{}
-	return dao.FindByStatus(status)
+	user := &users.User{}
+	return user.FindByStatus(status)
+}
+
+func (s *usersService) LoginRequest(request users.LoginRequest) (*users.User, *errors.RESTError) {
+	user := &users.User{
+		Email:    request.Email,
+		Password: request.Password,
+	}
+	if err := user.GetByEmailAndPassword(); err != nil {
+		return nil, err
+	}
+	return user, nil
 }
