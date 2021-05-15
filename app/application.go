@@ -13,6 +13,6 @@ var (
 // StartApplication function start the web application
 func StartApplication() {
 	mapURLs()
-	logger.Log.Info("Starting the application ...")
+	logger.GetLogger().Info("Starting the application ...")
 	router.Run(":8080")
 }
