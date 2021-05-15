@@ -84,7 +84,7 @@ func (s *usersService) FindUsersByStatus(status string) (users.Users, *errors.RE
 func (s *usersService) LoginRequest(request users.LoginRequest) (*users.User, *errors.RESTError) {
 	user := &users.User{
 		Email:    request.Email,
-		Password: request.Password,
+		Password: encryption.GetMD5(request.Password),
 	}
 	if err := user.GetByEmailAndPassword(); err != nil {
 		return nil, err
