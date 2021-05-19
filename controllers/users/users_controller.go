@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gvu0110/bookstore_oauth-go/oauth"
 	"github.com/gvu0110/bookstore_users-api/domain/users"
 	"github.com/gvu0110/bookstore_users-api/services"
 	"github.com/gvu0110/bookstore_users-api/utils/errors"
@@ -39,6 +40,11 @@ func CreateUser(c *gin.Context) {
 
 // GetUser function gets user's information
 func GetUser(c *gin.Context) {
+	if err := oauth.AuthenticateRequest(c.Request); err != nil {
+		c.JSON(err.StatusCode, err)
+		return
+	}
+
 	userID, err := getUserID(c.Param("user_id"))
 	if err != nil {
 		c.JSON(err.StatusCode, err)
@@ -51,7 +57,12 @@ func GetUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, user.Marshall(c.GetHeader("X-Public") == "true"))
+	if oauth.GetCallerID(c.Request) == user.ID {
+		c.JSON(http.StatusOK, user.Marshall(false))
+		return
+	}
+
+	c.JSON(http.StatusOK, user.Marshall(oauth.IsPublic(c.Request)))
 }
 
 func UpdateUser(c *gin.Context) {
