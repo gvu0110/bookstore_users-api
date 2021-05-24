@@ -6,7 +6,9 @@ import (
 	"log"
 	"os"
 
+	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gvu0110/bookstore_utils-go/logger"
 )
 
 const (
@@ -34,5 +36,6 @@ func init() {
 	if err = Client.Ping(); err != nil {
 		panic(err)
 	}
+	mysql.SetLogger(logger.SetLogger)
 	log.Println("Database successfully connected")
 }

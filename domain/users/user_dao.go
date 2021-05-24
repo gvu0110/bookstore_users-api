@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/gvu0110/bookstore_users-api/datasources/mysql/user_db"
-	"github.com/gvu0110/bookstore_users-api/logger"
 	"github.com/gvu0110/bookstore_users-api/utils/errors"
+	"github.com/gvu0110/bookstore_utils-go/logger"
 )
 
 // Data Access Object: the logic to access to database.

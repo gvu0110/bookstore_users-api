@@ -2,7 +2,7 @@ package app
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/gvu0110/bookstore_users-api/logger"
+	"github.com/gvu0110/bookstore_utils-go/logger"
 )
 
 // Only app and controller layers are defining and using HTTP framework, may be changed when deploying a new framework
