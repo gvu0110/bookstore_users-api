@@ -36,6 +36,6 @@ func init() {
 	if err = Client.Ping(); err != nil {
 		panic(err)
 	}
-	mysql.SetLogger(logger.SetLogger)
+	mysql.SetLogger(logger.GetLogger())
 	log.Println("Database successfully connected")
 }
