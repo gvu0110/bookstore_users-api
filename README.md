@@ -1,7 +1,6 @@
 # bookstore_users-api
 
-MySQL Docker run
+Local app run
 ```
-export MYSQL_PASSWORD="root"
-docker-compose up
+docker-compose up --build
 ```

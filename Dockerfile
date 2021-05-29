@@ -1,9 +1,13 @@
 FROM golang:1.16.4
 
-ADD . /go/src/github.com/gvu0110/bookstore_users-api
+RUN mkdir /app
 
-RUN go install github.com/gvu0110/bookstore_users-api@latest
+ADD . /app
 
-ENTRYPOINT /go/bin/bookstore_users-api
+WORKDIR /app
 
-EXPOSE 8081
+RUN go mod download
+
+RUN go build -o main .
+
+CMD ["/app/main"]

@@ -6,13 +6,13 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: app
+    restart: on-failure
     ports:
       - "8081:8081"
     environment:
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: root
-      MYSQL_HOST: db
-      MYSQL_PORT: 3306
+      MYSQL_ADDRESS: db:3306
       MYSQL_SCHEMA: users_db
     depends_on:
       - db
