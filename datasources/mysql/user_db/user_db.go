@@ -14,8 +14,7 @@ import (
 const (
 	mysql_username_env_var = "MYSQL_USERNAME"
 	mysql_password_env_var = "MYSQL_PASSWORD"
-	mysql_port_env_var     = "MYSQL_PORT"
-	mysql_host_env_var     = "MYSQL_HOST"
+	mysql_host_env_var     = "MYSQL_ADDRESS"
 	mysql_schema_env_var   = "MYSQL_SCHEMA"
 )
 
@@ -23,19 +22,17 @@ var (
 	Client   *sql.DB
 	username = os.Getenv(mysql_username_env_var)
 	password = os.Getenv(mysql_password_env_var)
-	port     = os.Getenv(mysql_port_env_var)
 	host     = os.Getenv(mysql_host_env_var)
 	schema   = os.Getenv(mysql_schema_env_var)
 )
 
 func init() {
-	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8",
-		username, password, host, port, schema,
+	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8",
+		username, password, host, schema,
 	)
 
 	var err error
 	Client, err = sql.Open("mysql", dataSourceName)
-	fmt.Println(dataSourceName)
 	if err != nil {
 		panic(err)
 	}
