@@ -5,22 +5,22 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: app
+    container_name: users-api
     restart: on-failure
     ports:
       - "8081:8081"
     environment:
       MYSQL_USERNAME: root
       MYSQL_PASSWORD: root
-      MYSQL_ADDRESS: db:3306
+      MYSQL_ADDRESS: mysql:3306
       MYSQL_SCHEMA: users_db
     depends_on:
-      - db
+      - mysql
     networks:
       - backend
-  db:
+  mysql:
     image: mysql:8.0.25
-    container_name: db
+    container_name: mysql
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     ports:
