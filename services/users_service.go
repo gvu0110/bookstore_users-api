@@ -2,9 +2,9 @@ package services
 
 import (
 	"github.com/gvu0110/bookstore_users-api/domain/users"
-	"github.com/gvu0110/bookstore_users-api/utils/date"
-	"github.com/gvu0110/bookstore_users-api/utils/encryption"
-	"github.com/gvu0110/bookstore_users-api/utils/errors"
+	"github.com/gvu0110/bookstore_utils-go/date"
+	"github.com/gvu0110/bookstore_utils-go/encryption"
+	"github.com/gvu0110/bookstore_utils-go/rest_errors"
 )
 
 // Core entire business logic, shouldn't be changed
@@ -16,16 +16,16 @@ var (
 type usersService struct{}
 
 type usersServiceInterface interface {
-	CreateUser(users.User) (*users.User, *errors.RESTError)
-	GetUser(int64) (*users.User, *errors.RESTError)
-	UpdateUser(users.User) (*users.User, *errors.RESTError)
-	DeleteUser(int64) *errors.RESTError
-	FindUsersByStatus(string) (users.Users, *errors.RESTError)
-	LoginRequest(users.LoginRequest) (*users.User, *errors.RESTError)
+	CreateUser(users.User) (*users.User, rest_errors.RESTError)
+	GetUser(int64) (*users.User, rest_errors.RESTError)
+	UpdateUser(users.User) (*users.User, rest_errors.RESTError)
+	DeleteUser(int64) rest_errors.RESTError
+	FindUsersByStatus(string) (users.Users, rest_errors.RESTError)
+	LoginRequest(users.LoginRequest) (*users.User, rest_errors.RESTError)
 }
 
 // CreateUser function creates a new user
-func (s *usersService) CreateUser(user users.User) (*users.User, *errors.RESTError) {
+func (s *usersService) CreateUser(user users.User) (*users.User, rest_errors.RESTError) {
 	if err := user.Validate(); err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (s *usersService) CreateUser(user users.User) (*users.User, *errors.RESTErr
 }
 
 // GetUser function gets user's information
-func (s *usersService) GetUser(userID int64) (*users.User, *errors.RESTError) {
+func (s *usersService) GetUser(userID int64) (*users.User, rest_errors.RESTError) {
 	user := &users.User{ID: userID}
 	if err := user.Get(); err != nil {
 		return nil, err
@@ -48,7 +48,7 @@ func (s *usersService) GetUser(userID int64) (*users.User, *errors.RESTError) {
 	return user, nil
 }
 
-func (s *usersService) UpdateUser(user users.User) (*users.User, *errors.RESTError) {
+func (s *usersService) UpdateUser(user users.User) (*users.User, rest_errors.RESTError) {
 	if err := user.Validate(); err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (s *usersService) UpdateUser(user users.User) (*users.User, *errors.RESTErr
 	return currentUser, nil
 }
 
-func (s *usersService) DeleteUser(userID int64) *errors.RESTError {
+func (s *usersService) DeleteUser(userID int64) rest_errors.RESTError {
 	user := &users.User{ID: userID}
 	if err := user.Delete(); err != nil {
 		return err
@@ -76,12 +76,12 @@ func (s *usersService) DeleteUser(userID int64) *errors.RESTError {
 	return nil
 }
 
-func (s *usersService) FindUsersByStatus(status string) (users.Users, *errors.RESTError) {
+func (s *usersService) FindUsersByStatus(status string) (users.Users, rest_errors.RESTError) {
 	user := &users.User{}
 	return user.FindByStatus(status)
 }
 
-func (s *usersService) LoginRequest(request users.LoginRequest) (*users.User, *errors.RESTError) {
+func (s *usersService) LoginRequest(request users.LoginRequest) (*users.User, rest_errors.RESTError) {
 	user := &users.User{
 		Email:    request.Email,
 		Password: encryption.GetMD5(request.Password),
