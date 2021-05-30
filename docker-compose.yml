@@ -18,6 +18,7 @@ services:
       - mysql
     networks:
       - backend
+
   mysql:
     image: mysql:8.0.25
     container_name: mysql
