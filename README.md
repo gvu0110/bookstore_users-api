@@ -12,7 +12,12 @@ export MYSQL_ADDRESS=localhost:3306
 export MYSQL_SCHEMA=users_db
 go run main.go
 ```
-3. Run locally with docker-compose
+3. Run locally with docker-compose.
+- Make sure the external network `shared-backend` is existing
 ```shell
+docker network create shared-backend
+```
+- Run docker-compose
+```
 docker-compose up --build
 ```
